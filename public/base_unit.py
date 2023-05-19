@@ -33,10 +33,13 @@ class BaseTest(unittest.TestCase):
         )
 
     def setUp(self):
+        # 当用例不通过需要截图时，报告截图方法在tearDown后执行，如果tearDown中关闭了页面将导致报错，所以把页面关闭放到setUp中判断
+        if self.context.pages:
+            self.context.pages[0].close()
         self.page = self.context.new_page()
 
-    def tearDown(self):
-        self.page.close()
+    # def tearDown(self):
+    #     self.page.close()
 
     @classmethod
     def tearDownClass(cls):
