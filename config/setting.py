@@ -3,9 +3,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(BASE_DIR)
 
 # url
-URL = "http://172.30.31.49/"
+URL = "https://172.30.22.169"
 # 用户名
-USERNAME = "root"
+USERNAME = "csr"
 # 验证码
 PASSWORD = "a123456"
 # 测试用例目录

@@ -55,6 +55,10 @@ import base64
 __author__ = "Wai Yip Tung,  Findyou"
 __version__ = "0.8.2.2"
 
+from concurrent.futures import ThreadPoolExecutor
+
+from threading import Thread
+from time import sleep
 
 """
 Change History
@@ -84,8 +88,6 @@ Version in 0.7.1
 
 import datetime
 import io
-import sys
-import time
 import unittest
 from xml.sax import saxutils
 import sys
@@ -564,6 +566,7 @@ a.popup_link:hover {
 
 TestResult = unittest.TestResult
 
+
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
@@ -644,12 +647,12 @@ class _TestResult(TestResult):
         _, _exc_str = self.errors[-1]
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
-        try:
-            page = getattr(test, "page")
-            test.img_bytes = page.screenshot()
-            test.img = base64.b64encode(test.img_bytes).decode()
-        except AttributeError:
-            test.img = ""
+        # try:
+        #     page = getattr(test, "page")
+        #     test.img_bytes = page.screenshot()
+        #     test.img = base64.b64encode(test.img_bytes).decode()
+        # except AttributeError:
+        #     test.img = ""
         if self.verbosity > 1:
             sys.stderr.write('E  ')
             sys.stderr.write(str(test))
@@ -665,12 +668,12 @@ class _TestResult(TestResult):
         _, _exc_str = self.failures[-1]
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
-        try:
-            page = getattr(test, "page")
-            test.img_bytes = page.screenshot()
-            test.img = base64.b64encode(test.img_bytes).decode()
-        except AttributeError:
-            test.img = ""
+        # try:
+        #     page = getattr(test, "page")
+        #     test.img_bytes = page.screenshot()
+        #     test.img = base64.b64encode(test.img_bytes).decode()
+        # except AttributeError:
+        #     test.img = ""
         if self.verbosity > 1:
             sys.stderr.write('F  ')
             sys.stderr.write(str(test))
@@ -701,12 +704,33 @@ class HTMLTestRunner(Template_mixin):
         self.startTime = datetime.datetime.now()
 
 
-    def run(self, test):
+    def run(self, suites, thread_count=1):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
-        test(result)
+        # 多线程执行用例
+        # ts = []
+        # for suite in suites:
+        #     thread = Thread(target=suite.run, args=[result])
+        #     ts.append(thread)
+        # for t in ts:
+        #     t.start()
+        #     sleep(3)
+        # for t in ts:
+        #     t.join()
+        # # 创建进程池执行用例
+        # pool = Pool(processes=thread_count)
+        # for suite in suites:
+        #     pool.apply_async(suite.run, [result])
+        # pool.close()
+        # pool.join()
+        # 创建线程池执行用例
+        with ThreadPoolExecutor(max_workers=thread_count) as ts:
+            for suite in suites:
+                ts.submit(suite.run, result=result)
+                sleep(10)
+            ts.shutdown()
         self.stopTime = datetime.datetime.now()
-        self.generateReport(test, result)
+        self.generateReport(result)
         print(sys.stderr, '\nTime Elapsed: %s' % (self.stopTime - self.startTime))
         return result
 
@@ -751,7 +775,7 @@ class HTMLTestRunner(Template_mixin):
         ]
 
 
-    def generateReport(self, test, result):
+    def generateReport(self, result):
         report_attrs = self.getReportAttributes(result)
         generator = 'HTMLTestRunner %s' % __version__
         stylesheet = self._generate_stylesheet()

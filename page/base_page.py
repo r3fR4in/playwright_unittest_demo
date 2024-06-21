@@ -1,9 +1,9 @@
 from config import setting
-from public.log import Log
+# from public.log import Log
 
 # 读取配置文件的URL
 login_url = setting.URL
-log = Log()
+# log = Log()
 
 
 class Page(object):
@@ -19,13 +19,7 @@ class Page(object):
         self.page.goto(url)
 
     # def get_by_placeholder(self, text):
-    #     try:
-    #         return self.page.get_by_placeholder(text)
-    #     except Exception:
-    #         log.error("{0}页面中未能找到placeholder为{1}的元素".format(self, text))
+    #     return self.page.get_by_placeholder(text)
     #
     # def locator(self, text):
-    #     try:
-    #         return self.page.locator(text)
-    #     except Exception:
-    #         log.error("{0}页面中未能找到{1}的元素".format(self, text))
+    #     return self.page.locator(text)
